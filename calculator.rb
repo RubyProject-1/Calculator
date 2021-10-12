@@ -101,11 +101,8 @@ def user_interface
             recalculate()
         when 2
             puts "You chose subtraction"
-            difference = num1 - num2
-            if num2 > num1
-                difference = num2 - num1
-            end
-            puts "The difference is #{difference}"
+            subtraction = num1 - num2
+            puts "The answer is #{subtraction}"
             recalculate()
         when 3
             puts "You chose multiplication"
@@ -115,9 +112,6 @@ def user_interface
         when 4
             puts "You chose division"
             division = num1/num2 # using integer division
-            if num2 > num1
-                division = num2/num1
-            end
             puts "The answer is #{division}"
             recalculate()
         when 5
