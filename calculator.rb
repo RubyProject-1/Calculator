@@ -9,16 +9,50 @@ set background: '#376278'
 set title: "Calculator"
 # Create the buttons
 buttons = []
-buttons[0] = Button.new(2, 2, 496, 100, "#505050", "Type")
+buttons[0] = Display.new(2, 2, 496, 68, "#505050", "Type A Number")
 buttons[1] = Button.new(2, 72, 246, 100, "#FF9500", "+")
 buttons[2] = Button.new(248, 72, 250, 100, "#FF9500", "-")
 buttons[3] = Button.new(2, 174, 165, 100, "#FF9500", "x")
 buttons[4] = Button.new(167, 174, 165, 100, "#FF9500", "/")
 buttons[5] = Button.new(334, 174, 164, 100, "#FF9500", "^")
 buttons[6] = Button.new(2, 276, 496, 100, "#FF9500", "=")
-update do
+defaultLabel = true
+# On Key press, if not 0-9, wont be added
+# On mouse click check if a button contains the mouse position, if it does do that buttons function
+on :key_up do |event|
+    if defaultLabel == true
+        defaultLabel = false
+        @input = event.key
+        buttons[0] = Display.new(2, 2, 496, 68, "#505050", @input.to_i)
+    else
+        @input = @input + event.key
+        buttons[0] = Display.new(2, 2, 496, 68, "#505050", @input.to_i)
+    end
+    end
 
-end
+    on :mouse_down do |event|
+        # Left mouse button pressed down
+        if event.button == :left
+            buttonPress = true
+            @valueOne = @input.to_i
+            # Save the first value entered to be used later
+            if buttons[1].getRect().contains? event.x, event.y
+                puts '+'
+            elsif buttons[2].getRect().contains? event.x, event.y
+                puts '-'
+            elsif buttons[3].getRect().contains? event.x, event.y
+                puts 'x'
+            elsif buttons[4].getRect().contains? event.x, event.y
+                puts '/'
+            elsif buttons[5].getRect().contains? event.x, event.y
+                puts '^'
+            elsif buttons[6].getRect().contains? event.x, event.y
+                puts '='
+            else
+                buttonPress = false
+            end
+        end
+    end
 show
 user_interface()
 
@@ -125,8 +159,39 @@ class Button
             size: 20,
             color: 'black'
             )
-            
+        def getRect()
+            return @rect
+        end
         @@numOfButtons = @@numOfButtons + 1
     end
 end
+
+class Display
+    @@numOfDisplays = 0
+    def initialize(x, y, width, height, color, label)
+        @x = x
+        @y = y 
+        @width = width
+        @height = height 
+        @color = color
+        @outlineWidth = 4
+        @outline = Rectangle.new(
+            x: @x - @outlineWidth/2, y: @y - @outlineWidth/2,
+            width: @width + @outlineWidth, height: @height + @outlineWidth,
+            color: 'black'
+        )
+        @rect = Rectangle.new(
+            x: @x, y: @y,
+            width: @width, height: @height,
+            color: @color
+        )
+        @label = Text.new(
+            label,
+            x: x + 6, y: y + height/2 - 15,
+            size: 20,
+            color: 'black'
+            )
+        @@numOfDisplays = @@numOfDisplays + 1
+    end
+end 
 }
