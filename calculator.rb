@@ -131,7 +131,7 @@ on :key_up do |event|
             display = Display.new(0, 0, 240, 80, "#505050", @input)
         elsif !defaultLabel && !@val2 # Add to val1
             if @val1 == 0 # Cannot append to 0
-                next
+                @input = ''
             end
             @input += string
             @val1 = @input.to_i
@@ -143,7 +143,7 @@ on :key_up do |event|
             display = Display.new(0, 0, 240, 80, "#505050", @input)
         else # Add to val2
             if @val2 == 0 # Cannot append to 0
-                next
+                @input = ''
             end
             @input += string
             @val2 = @input.to_i
