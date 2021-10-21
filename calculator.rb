@@ -124,16 +124,15 @@ on :key_up do |event|
     # Parse numeric inputs
     begin Integer(string) # Try to get Integer
 
-        if defaultLabel && string == '0' # Cannot start with 0
-            next
-        end
-
         if defaultLabel && !@val1 # Start val1
             defaultLabel = false
             @input = string
             @val1 = @input.to_i
             display = Display.new(0, 0, 240, 80, "#505050", @input)
         elsif !defaultLabel && !@val2 # Add to val1
+            if @val1 == 0 # Cannot append to 0
+                next
+            end
             @input += string
             @val1 = @input.to_i
             display = Display.new(0, 0, 240, 80, "#505050", @input)
@@ -143,6 +142,9 @@ on :key_up do |event|
             @val2 = @input.to_i
             display = Display.new(0, 0, 240, 80, "#505050", @input)
         else # Add to val2
+            if @val2 == 0 # Cannot append to 0
+                next
+            end
             @input += string
             @val2 = @input.to_i
             display = Display.new(0, 0, 240, 80, "#505050", @input)
