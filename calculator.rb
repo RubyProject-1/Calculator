@@ -1,4 +1,4 @@
-
+# @author Carl Fukawa
 class Calculator
 
     attr_accessor :val1

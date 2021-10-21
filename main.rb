@@ -151,34 +151,49 @@ on :key_up do |event|
     rescue
         next # Except anything else
     end
-    puts calculator.val1
-    puts calculator.val2
 end
 
 # On mouse click check if a button contains the mouse position, if it does do that buttons function
 on :mouse_down do |event|
     # Left mouse button pressed down
     if event.button == :left
-        buttonPress = true
-        @valueOne = @input.to_i
-        # Save the first value entered to be used later
-        if buttons[1].getRect().contains? event.x, event.y
-            puts '+'
-        elsif buttons[2].getRect().contains? event.x, event.y
-            puts '-'
-        elsif buttons[3].getRect().contains? event.x, event.y
-            puts 'x'
-        elsif buttons[4].getRect().contains? event.x, event.y
-            puts '/'
-        elsif buttons[5].getRect().contains? event.x, event.y
-            puts '^'
-        elsif buttons[6].getRect().contains? event.x, event.y
-            puts '='
-        else
-            buttonPress = false
+        
+        x = event.x
+        y = event.y
+
+        if buttons[3].inRect(x, y) && calculator.val1
+            calculator.op = '/'
+            display = Display.new(0, 0, 240, 80, "#505050", "")
+            defaultLabel = true
+        elsif buttons[7].inRect(x, y) && calculator.val1
+            calculator.op = '*'
+            display = Display.new(0, 0, 240, 80, "#505050", "")
+            defaultLabel = true
+        elsif buttons[11].inRect(x, y) && calculator.val1
+            calculator.op = '-'
+            display = Display.new(0, 0, 240, 80, "#505050", "")
+            defaultLabel = true
+        elsif buttons[15].inRect(x, y) && calculator.val1
+            calculator.op = '+'
+            display = Display.new(0, 0, 240, 80, "#505050", "")
+            defaultLabel = true
+        elsif buttons[19].inRect(x, y) && calculator.val1 && calculator.val2
+            case calculator.op
+            when '+'
+                calculator.add
+                display = Display.new(0, 0, 240, 80, "#505050", calculator.val1)
+            when '-'
+                calculator.sub
+                display = Display.new(0, 0, 240, 80, "#505050", calculator.val1)
+            when '*'
+                calculator.mul
+                display = Display.new(0, 0, 240, 80, "#505050", calculator.val1)
+            when '/'
+                calculator.div
+                display = Display.new(0, 0, 240, 80, "#505050", calculator.val1)
+            end
         end
     end
 end
 
 show
-

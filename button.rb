@@ -1,4 +1,4 @@
-# @author Rosalinda Chamale, Jack Schmid
+# @author Rosalinda Chamale, Jack Schmid, Carl Fukawa
 class Button
     @@numOfButtons = 0
     def initialize(x, y, width, height, color, label)
@@ -24,8 +24,8 @@ class Button
             size: 20,
             color: 'black'
             )
-        def getRect()
-            return @rect
+        def inRect(x, y)
+            return x > @x && x < (@x + @width) && y > @y && y < (@y + @height) 
         end
         @@numOfButtons += 1
     end
