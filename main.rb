@@ -70,6 +70,14 @@ end
 
 defaultLabel = true
 
+def numberIn
+
+end
+
+def symbolIn
+
+end
+
 # On Key release, if not 0-9, wont be added
 on :key_up do |event|
 

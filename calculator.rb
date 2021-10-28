@@ -1,8 +1,8 @@
 # @author Carl Fukawa
 class Calculator
 
-    attr_accessor :val1
-    attr_accessor :val2
+    attr_accessor :val1 # Creates getters and setters 
+    attr_accessor :val2 # for these class varialbles
     attr_accessor :op
 
     def initialize()
@@ -24,7 +24,9 @@ class Calculator
     end
 
     def div
-        @val1 /= @val2
+        if @val2 != 0 # No divide by zero
+            @val1 /= @val2
+        end
         remove_instance_variable(:@val2)
     end
 

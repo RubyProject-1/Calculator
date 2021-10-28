@@ -23,10 +23,10 @@ class Button
             x: x + width/2 - 6, y: y + height/2 - 15,
             size: 20,
             color: 'black'
-            )
-        def inRect(x, y)
-            return x > @x && x < (@x + @width) && y > @y && y < (@y + @height) 
-        end
+        )
         @@numOfButtons += 1
+    end
+    def inRect(x, y)
+        return x > @x && x < (@x + @width) && y > @y && y < (@y + @height) 
     end
 end
