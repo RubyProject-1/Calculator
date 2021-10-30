@@ -10,22 +10,35 @@ class Calculator
 
     def add
         @val1 += @val2
-        remove_instance_variable(:@val2)
+        cleanup
     end
 
     def sub
         @val1 -= @val2
-        remove_instance_variable(:@val2)
+        cleanup
     end
 
     def mul
         @val1 *= @val2
-        remove_instance_variable(:@val2)
+        cleanup
     end
 
     def div
         if @val2 != 0 # No divide by zero
-            @val1 /= @val2
+            @val1 /= @val2.to_f
+        end
+        cleanup
+    end
+
+    def pow
+        @val1 **= @val2.to_f
+        cleanup
+    end
+
+    private
+    def cleanup
+        if @val1 % 1 == 0
+            @val1 = @val1.to_i
         end
         remove_instance_variable(:@val2)
     end

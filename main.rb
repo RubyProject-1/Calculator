@@ -4,203 +4,234 @@ require_relative 'button'
 require_relative 'display'
 require_relative 'calculator'
 
-# Set the window size
+# Set the window size, background color, and title
 set width: 240, height: 480
-# Set the background color
 set background: '#376278'
-# Set the window title
 set title: "Calculator"
 
 # Create the display
-display = Display.new(0, 0, 240, 80, "#505050", "")
+Display.new(0, 0, 240, 80, "#505050", "")
+
+@calculator = Calculator.new()
+
+button_names = ['**', 'c', '<--', '/', '7', '8', '9', '*', '4', '5', '6', '-',
+    '1', '2', '3', '+', '+/-', '0', '.', '=']
 
 # Create the buttons
 buttons = []
 
-calculator = Calculator.new()
-
-# Use 2d programatic creation
 for i in 0..4
     for j in 0..3
-        case i * 4 + j
-        when 0
-            string = '**'
-        when 1
-            string = 'c'
-        when 2
-            string = '<--'
-        when 3
-            string = '/'
-        when 4
-            string = '7'
-        when 5
-            string = '8'
-        when 6
-            string = '9'
-        when 7
-            string = '*'
-        when 8
-            string = '4'
-        when 9
-            string = '5'
-        when 10
-            string = '6'
-        when 11
-            string = '-'
-        when 12
-            string = '1'
-        when 13
-            string = '2'
-        when 14
-            string = '3'
-        when 15
-            string = '+'
-        when 16
-            string = '+/-'
-        when 17
-            string = '0'
-        when 18
-            string = '.'
-        when 19
-            string = '='
+        button_num = 4* i + j
+        case button_num
+        when 4..6, 8..10, 12..14, 16..18
+            color = 'white'
+        else
+            color = '#FF9500'
         end
-        buttons[i * 4 + j] = Button.new(j * 60, (i + 1) * 80, 60, 80, "#FF9500", string)
+        buttons[button_num] = Button.new(j * 60, (i + 1) * 80, 60, 80, color, 
+            button_names[button_num])
     end
 end
 
-defaultLabel = true
+@defaultLabel = true
 
-def numberIn
-
+# For numeric inputs
+def numberIn(num)
+    if @defaultLabel && !@calculator.val1 # Start val1
+        if num.eql?('<--') || num.eql?('c') || num.eql?('+/-')
+            return
+        end
+        if num .eql? '.'
+            @input = '0.'
+        else
+            @input = num
+        end
+        @defaultLabel = false
+        if num .eql? '.'
+            @calculator.val1 = @input.to_f
+        else
+            @calculator.val1 = @input.to_i
+        end
+        Display.new(0, 0, 240, 80, "#505050", @input)
+    elsif !@defaultLabel && !@calculator.val2 # Add to val1
+        if @calculator.val1.is_a?(Integer) && @calculator.val1 == 0 # Cannot append to 0
+            if num .eql? '.'
+                @input = '0'
+            else
+                @input = ''
+            end
+        end
+        if num .eql? '<--'
+            @input = @input[0...-1] # Perform backspace
+        elsif num .eql? 'c'
+            @input = ''             # Clear number
+        elsif num.eql?('+/-') && @calculator.val1 != 0
+            if @calculator.val1 > 0
+                @input = '-' + @input
+            else
+                @input = @input[1..-1]
+            end
+        else
+            @input += num
+        end
+        if @input .include? '.'
+            @calculator.val1 = @input.to_f
+        else
+            @calculator.val1 = @input.to_i
+        end
+        Display.new(0, 0, 240, 80, "#505050", @input)
+    elsif @defaultLabel && !@calculator.val2  # Start val2
+        if num.eql?('<--') || num.eql?('c')
+            return
+        end
+        if num .eql? '.'
+            @input = '0.'
+        else
+            @input = num
+        end
+        @defaultLabel = false
+        if num .eql? '.'
+            @calculator.val2 = @input.to_f
+        else
+            @calculator.val2 = @input.to_i
+        end
+        Display.new(0, 0, 240, 80, "#505050", @input)
+    else # Add to val2
+        if @calculator.val2.is_a?(Integer) && @calculator.val2 == 0 # Cannot append to 0
+            if num .eql? '.'
+                @input = '0'
+            else
+                @input = ''
+            end
+        end
+        if num .eql? '<--'
+            @input = @input[0...-1] # Perform backspace
+        elsif num .eql? 'c'
+            @input = ''             # Clear number
+        elsif num.eql?('+/-') && @calculator.val2 != 0
+            if @calculator.val2 > 0
+                @input = '-' + @input
+            else
+                @input = @input[1..-1]
+            end
+        else
+            @input += num
+        end
+        if @input .include? '.'
+            @calculator.val2 = @input.to_f
+        else
+            @calculator.val2 = @input.to_i
+        end
+        Display.new(0, 0, 240, 80, "#505050", @input)
+    end
 end
 
-def symbolIn
-
+# For symbol inputs
+def symbolIn(symbol)
+    if @calculator.val1 && !@calculator.val2 # Set operation
+        case symbol
+        when '**'
+            @calculator.op = '**'
+        when '+'
+            @calculator.op = '+'
+        when '-'
+            @calculator.op = '-'
+        when '*'
+            @calculator.op = '*'
+        when '/'
+            @calculator.op = '/'
+        end
+        case symbol
+        when '**', '+', '-', '*', '/'
+            Display.new(0, 0, 240, 80, "#505050", "")
+            @defaultLabel = true
+        end
+    elsif @calculator.val1 && @calculator.val2 # Get the result
+        case symbol
+        when 'enter', 'return', '='
+            case @calculator.op
+            when '**'
+                @calculator.pow
+            when '+'
+                @calculator.add
+            when '-'
+                @calculator.sub
+            when '*'
+                @calculator.mul
+            when '/'
+                @calculator.div
+            end
+            case @calculator.op
+            when '**', '+', '-', '*', '/'
+                Display.new(0, 0, 240, 80, "#505050", @calculator.val1)
+                @input = @calculator.val1.to_s
+            end
+        end
+    end
 end
 
-# On Key release, if not 0-9, wont be added
+# On Key release
 on :key_up do |event|
 
-    string = event.key
-    
+    input = event.key
+
     # Parse keypad inputs
-    if string.include? 'keypad'
-        string = string.sub('keypad ', '')
+    if input.include? 'keypad'
+        input = input.sub('keypad ', '')
     end
 
     # Keypad functions
-    if calculator.val1 && !calculator.val2 # Set operation
-        case string
-        when '+'
-            calculator.op = '+'
-            display = Display.new(0, 0, 240, 80, "#505050", "")
-            defaultLabel = true
-        when '-'
-            calculator.op = '-'
-            display = Display.new(0, 0, 240, 80, "#505050", "")
-            defaultLabel = true
-        when '*'
-            calculator.op = '*'
-            display = Display.new(0, 0, 240, 80, "#505050", "")
-            defaultLabel = true
-        when '/'
-            calculator.op = '/'
-            display = Display.new(0, 0, 240, 80, "#505050", "")
-            defaultLabel = true
-        end
-    elsif calculator.val1 && calculator.val2 # Get the result
-        case string
-        when 'enter' || 'return'
-            case calculator.op
-            when '+'
-                calculator.add
-                display = Display.new(0, 0, 240, 80, "#505050", calculator.val1)
-            when '-'
-                calculator.sub
-                display = Display.new(0, 0, 240, 80, "#505050", calculator.val1)
-            when '*'
-                calculator.mul
-                display = Display.new(0, 0, 240, 80, "#505050", calculator.val1)
-            when '/'
-                calculator.div
-                display = Display.new(0, 0, 240, 80, "#505050", calculator.val1)
-            end
-        end
+    symbolIn(input)
+
+    # Special numeric inputs
+    if input .eql? 'backspace'
+        numberIn('<--')
+    elsif input .eql? 'c' # Clear number
+        numberIn(input)
+    elsif input .eql? '.'
+        numberIn('.')
     end
 
     # Parse numeric inputs
-    begin Integer(string) # Try to get Integer
-
-        if defaultLabel && !calculator.val1 # Start val1
-            defaultLabel = false
-            @input = string
-            calculator.val1 = @input.to_i
-            display = Display.new(0, 0, 240, 80, "#505050", @input)
-        elsif !defaultLabel && !calculator.val2 # Add to val1
-            if calculator.val1 == 0 # Cannot append to 0
-                @input = ''
-            end
-            @input += string
-            calculator.val1 = @input.to_i
-            display = Display.new(0, 0, 240, 80, "#505050", @input)
-        elsif defaultLabel && !calculator.val2  # Start val2
-            defaultLabel = false
-            @input = string
-            calculator.val2 = @input.to_i
-            display = Display.new(0, 0, 240, 80, "#505050", @input)
-        else # Add to val2
-            if calculator.val2 == 0 # Cannot append to 0
-                @input = ''
-            end
-            @input += string
-            calculator.val2 = @input.to_i
-            display = Display.new(0, 0, 240, 80, "#505050", @input)
-        end
+    begin Integer(input) # Try to get Integer
+        numberIn(input)
     rescue
         next # Except anything else
     end
 end
 
-# On mouse click check if a button contains the mouse position, if it does do that buttons function
+# On mouse click
 on :mouse_down do |event|
     # Left mouse button pressed down
     if event.button == :left
-        
         x = event.x
         y = event.y
-
-        if buttons[3].inRect(x, y) && calculator.val1
-            calculator.op = '/'
-            display = Display.new(0, 0, 240, 80, "#505050", "")
-            defaultLabel = true
-        elsif buttons[7].inRect(x, y) && calculator.val1
-            calculator.op = '*'
-            display = Display.new(0, 0, 240, 80, "#505050", "")
-            defaultLabel = true
-        elsif buttons[11].inRect(x, y) && calculator.val1
-            calculator.op = '-'
-            display = Display.new(0, 0, 240, 80, "#505050", "")
-            defaultLabel = true
-        elsif buttons[15].inRect(x, y) && calculator.val1
-            calculator.op = '+'
-            display = Display.new(0, 0, 240, 80, "#505050", "")
-            defaultLabel = true
-        elsif buttons[19].inRect(x, y) && calculator.val1 && calculator.val2
-            case calculator.op
-            when '+'
-                calculator.add
-                display = Display.new(0, 0, 240, 80, "#505050", calculator.val1)
-            when '-'
-                calculator.sub
-                display = Display.new(0, 0, 240, 80, "#505050", calculator.val1)
-            when '*'
-                calculator.mul
-                display = Display.new(0, 0, 240, 80, "#505050", calculator.val1)
-            when '/'
-                calculator.div
-                display = Display.new(0, 0, 240, 80, "#505050", calculator.val1)
+        for i in 0..19
+            # Perform a button's action if it is clicked
+            if buttons[i].inRect(x, y)
+                case i
+                when 0, 3, 7, 11, 15, 19
+                    symbolIn(buttons[i].label_name)
+                when 1, 2, 4..6, 8..10, 12..14, 16..18
+                    numberIn(buttons[i].label_name)
+                end
             end
         end
+    end
+end
+
+# Highlights a button when the mouse hovers over it
+update do
+    x = get :mouse_x
+    y = get :mouse_y
+    for i in 0..19
+        if x != 0 && x != 239 && y != 0 && y != 479 && buttons[i].inRect(x, y)
+            buttons[i].color = 'yellow'
+        else
+            buttons[i].reset_color
+        end
+        buttons[i].draw
     end
 end
 
