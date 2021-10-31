@@ -72,6 +72,8 @@ def numberIn(num)
             else
                 @input = @input[1..-1]
             end
+        elsif num .eql? '+/-'
+            return
         else
             @input += num
         end
@@ -115,6 +117,8 @@ def numberIn(num)
             else
                 @input = @input[1..-1]
             end
+        elsif num .eql? '+/-'
+            return
         else
             @input += num
         end
