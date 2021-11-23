@@ -1,4 +1,18 @@
+class PriceError < StandardError
+    def message
+        "Enter a price that is zero or greater"
+    end
+end
+
+class SaleError < StandardError
+    def message
+        "Enter a sale that is zero or greater"
+    end
+end
+
 def calculate (state, price, sale = 0)
+    raise PriceError if price < 0 
+    raise SaleError if sale < 0 
     subtotal = priceCalculate(price,sale).round(2) #calculates subtotal
     salesTax = taxCalulate(subtotal,state) #calculates sales tax amount
     print "subtotal: $", '%.2f' % subtotal #'%.2f' helps us round to two decimals & displays 0's
@@ -43,5 +57,5 @@ def taxCalulate(price,state_key)
     return ("#{price * $stateTax[state_key]}").to_f
 end
 
-calculate("California", 100.00,10)
+calculate("California", -1.00,-1)
 
