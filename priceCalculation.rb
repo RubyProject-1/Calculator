@@ -6,9 +6,9 @@ end
 
 def calculate (state, price, sale = 0)
     begin
-        if price || sale < 0
-            raise NegativeError.new()
-        end
+        # if price || sale < 0
+            raise NegativeError.new() if (price || sale) < 0
+        # end
     rescue 
         puts "Please make sure that Price and Sale are not negative."
 
@@ -64,5 +64,5 @@ def taxCalulate(price,state_key)
     return ("#{price * $stateTax[state_key]}").to_f
 end
 
-calculate("California", 100 ,)
+calculate("California", 10 , 10)
 
