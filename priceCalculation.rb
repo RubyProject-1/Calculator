@@ -4,7 +4,7 @@ class NegativeError < StandardError
     end
 end
 
-def calculate (state, price, sale = 0)
+def calculate (state ="California", price = 0, sale = 0)
     begin
         # if price || sale < 0
             raise NegativeError.new() if (price || sale) < 0
@@ -64,5 +64,5 @@ def taxCalulate(price,state_key)
     return ("#{price * $stateTax[state_key]}").to_f
 end
 
-calculate("California", 10 , 10)
+calculate()
 
