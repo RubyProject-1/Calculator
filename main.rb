@@ -138,6 +138,9 @@ def input(input)
                 @stateLabel = true
                 @priceLabel = true
                 @saleLabel = true
+                @state = ''
+                @price = ''
+                @sale = ''
                 Display.new(0, 0, 600, 80, "#505050", "Enter State Abbreviation")
             end
         end
