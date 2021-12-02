@@ -1,4 +1,4 @@
-# @author Rosalinda Chamale, Jack Schmid, Carl Fukawa
+# @author Rosalinda Chamale, Jack Schmid, Carl Fukawa, Ricky Fok
 require 'ruby2d'
 require_relative 'button'
 require_relative 'display'
@@ -16,9 +16,9 @@ Display.new(0, 0, 600, 80, "#505050", "Enter State Abbreviation")
 @calculator = Calculator.new()
 
 @button_names = ['1','2', '3', '4', '5', '6', '7', '8', '9', '0', 
-    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 
-    'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', '<--', 
-    'Z', 'X', 'C', 'V', 'B', 'N', 'M', '.', 'ENTER']
+                 'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 
+                 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', '<--', 
+                 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '.', 'ENTER']
 
 # Create the buttons
 buttons = []
@@ -54,78 +54,95 @@ end
 
 # For inputs
 def input(input)
-    if @button_names.include? input
+  if @button_names.include? input # State Abbr. Input
         input_num = @button_names.find_index(input)
         if @stateLabel
             case input_num
-            when 10..28, 30..36
+            when 10..28, 30..36   # Letters
                 @state += input
                 Display.new(0, 0, 600, 80, "#505050", @state)
-            when 29
+            when 29   # backspace
                 if @state.length > 0
                     @state = @state[0...-1]
-                    Display.new(0, 0, 600, 80, "#505050", @state)
+                    #Display.new(0, 0, 600, 80, "#505050", @state)
                 end
-            when 38
+
+                if @state.length == 0   # if set back to nothing
+                      Display.new(0, 0, 600, 80, "#505050",  "Enter State Abbreviation")
+                    else
+                      Display.new(0, 0, 600, 80, "#505050",  @state)
+                    end
+
+            when 38   # enter
                 if !@state.eql?('')
                     Display.new(0, 0, 600, 80, "#505050", "Enter Price")
                     @stateLabel = false
                 end
             end
-        elsif @priceLabel
+        elsif @priceLabel   # Price Input
             case input_num
-            when 0..9
+            when 0..9   # Numbers
                 if @price.eql?('') && input_num == 9
                 elsif !@price.include?('.') || @price[-1] == '.' || @price[-2] == '.'
                     @price += input
                 end
-                Display.new(0, 0, 600, 80, "#505050", @price)
-            when 29
+                Display.new(0, 0, 600, 80, "#505050", '$' + @price)
+            when 29     # Backspace             
                 if @price.length > 0
                     @price = @price[0...-1]
                     if @price.eql?('0')
                         @price = ''
                     end
-                    Display.new(0, 0, 600, 80, "#505050", @price)
+
+                    if @price.length == 0   # if set back to nothing
+                      Display.new(0, 0, 600, 80, "#505050",  "Enter Price")
+                    else
+                      Display.new(0, 0, 600, 80, "#505050",  '$' + @price)
+                    end
                 end
-            when 37
+            when 37   # Period
                 if @price.eql?('')
                     @price = '0.'
-                    Display.new(0, 0, 600, 80, "#505050", @price)
+                    Display.new(0, 0, 600, 80, "#505050", '$' + @price)
                 elsif !@price.include?('.')
                     @price += '.'
-                    Display.new(0, 0, 600, 80, "#505050", @price)
+                    Display.new(0, 0, 600, 80, "#505050",'$' +  @price)
                 end
-            when 38
+            when 38   # Enter
                 if !@price.eql?('')
                     Display.new(0, 0, 600, 80, "#505050", "Enter Sale %")
                     @priceLabel = false
                 end
             end
-        elsif @saleLabel
+        elsif @saleLabel    # Sale % Input
             case input_num
-            when 0..9
+            when 0..9   # Numbers
                 if @sale.eql?('') && input_num == 9
                 elsif @sale.length < 2
                     @sale += input
                 elsif @sale.eql?('10') && input_num == 9
                     @sale += input
                 end
-                Display.new(0, 0, 600, 80, "#505050", @sale)
-            when 29
+                Display.new(0, 0, 600, 80, "#505050", @sale + " %")
+            when 29     # Backspace
                 if @sale.length > 0
                     @sale = @sale[0...-1]
                     if @sale.eql?('0')
                         @sale = ''
                     end
-                    Display.new(0, 0, 600, 80, "#505050", @sale)
+
+                    if @sale.length == 0   # if set back to nothing
+                      Display.new(0, 0, 600, 80, "#505050",  "Enter Sale %")
+                    else
+                      Display.new(0, 0, 600, 80, "#505050",  @sale + " %")
+                    end
                 end
             when 38
                 if !@sale.eql?('')
                     @saleLabel = false
                     begin
                         subtotal, total, saved = calculate(@state, @price.to_f, @sale.to_i)
-                        final = "subtotal: $%.2f, saved: $%.2f, total: $%.2f" % [subtotal, saved, total]
+                        final = "Subtotal: $%.2f | You saved, $%.2f! | Total: $%.2f" % [subtotal, saved, total]
                     rescue => e
                         final = e.message
                     end
@@ -147,6 +164,9 @@ def input(input)
     end
 end
 
+click = Sound.new('mixkit-mouse-click-close-1113.wav')
+cash = Sound.new('mixkit-coins-handling-1939.wav')
+
 # On Key release
 on :key_up do |event|
 
@@ -155,19 +175,22 @@ on :key_up do |event|
     # Parse keypad inputs
     if input.include? 'keypad'
         input = input.sub('keypad ', '')
+        click.play()
     end
 
     if input.eql?('backspace')
         input('<--')
+        click.play()
     elsif input.eql?('return')
         input('ENTER')
+        click.play()
     else
         input(input.upcase)
+        click.play()
     end
 end
 
-click = Sound.new('mixkit-mouse-click-close-1113.wav')
-cash = Sound.new('mixkit-coins-handling-1939.wav')
+
 
 # On mouse click
 on :mouse_down do |event|
