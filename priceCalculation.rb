@@ -4,24 +4,34 @@ class NegativeError < StandardError
     end
 end
 
-def calculate (state ="California", price = 0, sale = 0)
-    begin
-            raise NegativeError.new() if (price < 0 || sale < 0) 
-    rescue 
-        puts "Please make sure that Price or Sale is not negative."
+class StateAbbreviationError < StandardError
+    def message
+        "Not a valid state abbreviation"
+    end
+end
 
-    else #else for begin statement 
-        subtotal = priceCalculate(price,sale).round(2) #calculates subtotal
-        salesTax = taxCalulate(subtotal,state) #calculates sales tax amount
-        print "subtotal: $", '%.2f' % subtotal #'%.2f' helps us round to two decimals & displays 0's
-        total = totalCalculate(subtotal,salesTax).round(2) #calulates total price of item
+def calculate (state = "CA", price = 0, sale = 0)
+
+    raise StateAbbreviationError.new if ! $stateAbbreviations.key?(state)
+
+    state = $stateAbbreviations[state]
+
+    raise NegativeError.new if (price < 0 || sale < 0)
+
+    subtotal = priceCalculate(price,sale).round(2) #calculates subtotal
+    salesTax = taxCalulate(subtotal,state) #calculates sales tax amount
+    print "subtotal: $", '%.2f' % subtotal #'%.2f' helps us round to two decimals & displays 0's
+    total = totalCalculate(subtotal,salesTax).round(2) #calulates total price of item
+    puts
+    print "total: $", '%.2f' % total
+    if(sale > 0)
         puts
-        print "total: $", '%.2f' % total
-        if(sale > 0)
-            puts
-            print "saved: $" '%.2f' % discountCalculate(price, sale)
-        end #end of if statement
-    end#end of begin
+        saved = discountCalculate(price, sale)
+        print "saved: $" '%.2f' % saved
+        puts
+    end #end of if statement
+    return subtotal, total, saved
+
 end #end function
 
 def priceCalculate(price,sale)
@@ -40,7 +50,13 @@ end
 def totalCalculate(subTotal, salestax)
     total = subTotal + salestax
     return total
-end     
+end
+
+$stateAbbreviations = {"AL" => "Alabama", "AK" => "Alaska", "AZ" => "Arizona", "AR" => "Arkansas", "CA" => "California", "CO" => "Colorado", "CT" => "Connecticut", "DE" => "Delaware", "FL" => "Florida", "GA" => "Georgia", "HI" => "Hawaii", 
+    "ID" => "Idaho", "IL" => "Illinois", "IN" => "Indiana", "IA" => "Iowa", "KS" => "Kansas", "KY" => "Kentucky", "LA" => "Louisiana", "ME" => "Maine", "MD" => "Maryland", "MA" => "Massachusetts", "MI" => "Michigan", "MN" => "Minnesota", 
+    "MS" => "Mississippi", "MO" => "Missouri", "MT" => "Montana", "NE" => "Nebraska", "NV" => "Nevada", "NH" => "New Hampshire", "NJ" => "New Jersey", "NM" => "New Mexico", "NY" => "New York", "NC" => "North Carolina", "ND" => "North Dakota", 
+    "OH" => "Ohio", "OK" => "Oklahoma", "OR" => "Oregon", "PA" => "Pennsylvania", "RI" => "Rhode Island", "SC" => "South Carolina", "SD" => "South Dakota", "TN" => "Tennessee", "TX" => "Texas", "UT" => "Utah", "VT" => "Vermont", 
+    "VA" => "Virginia", "WA" => "Washington", "WV" => "West Virginia", "WI" => "Wisconsin", "WY" => "Wyoming"}
 
 #state taxes, global var
 $stateTax = {"Alabama" => 0.04,"Alaska" => 0,"Arizona" => 0.056,"Arkansas" => 0.065,"California" => 0.0725,"Colorado" => 2.900/100,"Connecticut" => 6.350/100,
@@ -55,8 +71,3 @@ $stateTax = {"Alabama" => 0.04,"Alaska" => 0,"Arizona" => 0.056,"Arkansas" => 0.
 def taxCalulate(price,state_key)
     return ("#{price * $stateTax[state_key]}").to_f
 end
-
-calculate("California", 10, 10)
-
-
-

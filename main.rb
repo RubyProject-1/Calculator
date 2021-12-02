@@ -3,173 +3,142 @@ require 'ruby2d'
 require_relative 'button'
 require_relative 'display'
 require_relative 'calculator'
+require_relative 'priceCalculation'
 
 # Set the window size, background color, and title
-set width: 240, height: 480
+set width: 600, height: 400
 set background: '#376278'
 set title: "Calculator"
 
 # Create the display
-Display.new(0, 0, 240, 80, "#505050", "")
+Display.new(0, 0, 600, 80, "#505050", "Enter State Abbreviation")
 
 @calculator = Calculator.new()
 
-button_names = ['**', 'c', '<--', '/', '7', '8', '9', '*', '4', '5', '6', '-',
-    '1', '2', '3', '+', '+/-', '0', '.', '=']
+@button_names = ['1','2', '3', '4', '5', '6', '7', '8', '9', '0', 
+    'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 
+    'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L', '<--', 
+    'Z', 'X', 'C', 'V', 'B', 'N', 'M', '.', 'ENTER']
 
 # Create the buttons
 buttons = []
 
-for i in 0..4
-    for j in 0..3
-        button_num = 4* i + j
+for i in 0..3
+    for j in 0..9
+        button_num = 10 * i + j
+        if button_num == 39
+            break
+        end
         case button_num
-        when 4..6, 8..10, 12..14, 16..18
-            color = 'white'
-        else
+        when 0..9, 29, 37, 38
             color = '#FF9500'
+        else
+            color = 'white'
         end
-        buttons[button_num] = Button.new(j * 60, (i + 1) * 80, 60, 80, color, 
-            button_names[button_num])
+        if button_num == 38
+            buttons[button_num] = Button.new(j * 60, (i + 1) * 80, 120, 80, color, 
+                @button_names[button_num])
+        else
+            buttons[button_num] = Button.new(j * 60, (i + 1) * 80, 60, 80, color, 
+                @button_names[button_num])
+        end
     end
 end
 
-@defaultLabel = true
+@stateLabel = true
+@priceLabel = true
+@saleLabel = true
+@state = ''
+@price = ''
+@sale = ''
 
-# For numeric inputs
-def numberIn(num)
-    if @defaultLabel && !@calculator.val1 # Start val1
-        if num.eql?('<--') || num.eql?('c') || num.eql?('+/-')
-            return
-        end
-        if num .eql? '.'
-            @input = '0.'
-        else
-            @input = num
-        end
-        @defaultLabel = false
-        if num .eql? '.'
-            @calculator.val1 = @input.to_f
-        else
-            @calculator.val1 = @input.to_i
-        end
-        Display.new(0, 0, 240, 80, "#505050", @input)
-    elsif !@defaultLabel && !@calculator.val2 # Add to val1
-        if @calculator.val1.is_a?(Integer) && @calculator.val1 == 0 # Cannot append to 0
-            if num .eql? '.'
-                @input = '0'
-            else
-                @input = ''
+# For inputs
+def input(input)
+    if @button_names.include? input
+        input_num = @button_names.find_index(input)
+        if @stateLabel
+            case input_num
+            when 10..28, 30..36
+                @state += input
+                Display.new(0, 0, 600, 80, "#505050", @state)
+            when 29
+                if @state.length > 0
+                    @state = @state[0...-1]
+                    Display.new(0, 0, 600, 80, "#505050", @state)
+                end
+            when 38
+                if !@state.eql?('')
+                    Display.new(0, 0, 600, 80, "#505050", "Enter Price")
+                    @stateLabel = false
+                end
             end
-        end
-        if num .eql? '<--'
-            @input = @input[0...-1] # Perform backspace
-        elsif num .eql? 'c'
-            @input = ''             # Clear number
-        elsif num.eql?('+/-') && @calculator.val1 != 0
-            if @calculator.val1 > 0
-                @input = '-' + @input
-            else
-                @input = @input[1..-1]
+        elsif @priceLabel
+            case input_num
+            when 0..9
+                if @price.eql?('') && input_num == 9
+                elsif !@price.include?('.') || @price[-1] == '.' || @price[-2] == '.'
+                    @price += input
+                end
+                Display.new(0, 0, 600, 80, "#505050", @price)
+            when 29
+                if @price.length > 0
+                    @price = @price[0...-1]
+                    if @price.eql?('0')
+                        @price = ''
+                    end
+                    Display.new(0, 0, 600, 80, "#505050", @price)
+                end
+            when 37
+                if @price.eql?('')
+                    @price = '0.'
+                    Display.new(0, 0, 600, 80, "#505050", @price)
+                elsif !@price.include?('.')
+                    @price += '.'
+                    Display.new(0, 0, 600, 80, "#505050", @price)
+                end
+            when 38
+                if !@price.eql?('')
+                    Display.new(0, 0, 600, 80, "#505050", "Enter Sale %")
+                    @priceLabel = false
+                end
             end
-        elsif num .eql? '+/-'
-            return
-        else
-            @input += num
-        end
-        if @input .include? '.'
-            @calculator.val1 = @input.to_f
-        else
-            @calculator.val1 = @input.to_i
-        end
-        Display.new(0, 0, 240, 80, "#505050", @input)
-    elsif @defaultLabel && !@calculator.val2  # Start val2
-        if num.eql?('<--') || num.eql?('c')
-            return
-        end
-        if num .eql? '.'
-            @input = '0.'
-        else
-            @input = num
-        end
-        @defaultLabel = false
-        if num .eql? '.'
-            @calculator.val2 = @input.to_f
-        else
-            @calculator.val2 = @input.to_i
-        end
-        Display.new(0, 0, 240, 80, "#505050", @input)
-    else # Add to val2
-        if @calculator.val2.is_a?(Integer) && @calculator.val2 == 0 # Cannot append to 0
-            if num .eql? '.'
-                @input = '0'
-            else
-                @input = ''
+        elsif @saleLabel
+            case input_num
+            when 0..9
+                if @sale.eql?('') && input_num == 9
+                elsif @sale.length < 2
+                    @sale += input
+                elsif @sale.eql?('10') && input_num == 9
+                    @sale += input
+                end
+                Display.new(0, 0, 600, 80, "#505050", @sale)
+            when 29
+                if @sale.length > 0
+                    @sale = @sale[0...-1]
+                    if @sale.eql?('0')
+                        @sale = ''
+                    end
+                    Display.new(0, 0, 600, 80, "#505050", @sale)
+                end
+            when 38
+                if !@sale.eql?('')
+                    @saleLabel = false
+                    begin
+                        subtotal, total, saved = calculate(@state, @price.to_f, @sale.to_i)
+                        final = "subtotal: $%.2f, saved: $%.2f, total: $%.2f" % [subtotal, saved, total]
+                    rescue => e
+                        final = e.message
+                    end
+                    Display.new(0, 0, 600, 80, "#505050", final)
+                end
             end
-        end
-        if num .eql? '<--'
-            @input = @input[0...-1] # Perform backspace
-        elsif num .eql? 'c'
-            @input = ''             # Clear number
-        elsif num.eql?('+/-') && @calculator.val2 != 0
-            if @calculator.val2 > 0
-                @input = '-' + @input
-            else
-                @input = @input[1..-1]
-            end
-        elsif num .eql? '+/-'
-            return
         else
-            @input += num
-        end
-        if @input .include? '.'
-            @calculator.val2 = @input.to_f
-        else
-            @calculator.val2 = @input.to_i
-        end
-        Display.new(0, 0, 240, 80, "#505050", @input)
-    end
-end
-
-# For symbol inputs
-def symbolIn(symbol)
-    if @calculator.val1 && !@calculator.val2 # Set operation
-        case symbol
-        when '**'
-            @calculator.op = '**'
-        when '+'
-            @calculator.op = '+'
-        when '-'
-            @calculator.op = '-'
-        when '*'
-            @calculator.op = '*'
-        when '/'
-            @calculator.op = '/'
-        end
-        case symbol
-        when '**', '+', '-', '*', '/'
-            Display.new(0, 0, 240, 80, "#505050", "")
-            @defaultLabel = true
-        end
-    elsif @calculator.val1 && @calculator.val2 # Get the result
-        case symbol
-        when 'enter', 'return', '='
-            case @calculator.op
-            when '**'
-                @calculator.pow
-            when '+'
-                @calculator.add
-            when '-'
-                @calculator.sub
-            when '*'
-                @calculator.mul
-            when '/'
-                @calculator.div
-            end
-            case @calculator.op
-            when '**', '+', '-', '*', '/'
-                Display.new(0, 0, 240, 80, "#505050", @calculator.val1)
-                @input = @calculator.val1.to_s
+            case input_num
+            when 38
+                @stateLabel = true
+                @priceLabel = true
+                @saleLabel = true
+                Display.new(0, 0, 600, 80, "#505050", "Enter State Abbreviation")
             end
         end
     end
@@ -185,23 +154,12 @@ on :key_up do |event|
         input = input.sub('keypad ', '')
     end
 
-    # Keypad functions
-    symbolIn(input)
-
-    # Special numeric inputs
-    if input .eql? 'backspace'
-        numberIn('<--')
-    elsif input .eql? 'c' # Clear number
-        numberIn(input)
-    elsif input .eql? '.'
-        numberIn('.')
-    end
-
-    # Parse numeric inputs
-    begin Integer(input) # Try to get Integer
-        numberIn(input)
-    rescue
-        next # Except anything else
+    if input.eql?('backspace')
+        input('<--')
+    elsif input.eql?('return')
+        input('ENTER')
+    else
+        input(input.upcase)
     end
 end
 
@@ -211,15 +169,10 @@ on :mouse_down do |event|
     if event.button == :left
         x = event.x
         y = event.y
-        for i in 0..19
+        for i in 0..buttons.length() - 1
             # Perform a button's action if it is clicked
             if buttons[i].inRect(x, y)
-                case i
-                when 0, 3, 7, 11, 15, 19
-                    symbolIn(buttons[i].label_name)
-                when 1, 2, 4..6, 8..10, 12..14, 16..18
-                    numberIn(buttons[i].label_name)
-                end
+                input(buttons[i].label_name)
             end
         end
     end
@@ -229,8 +182,8 @@ end
 update do
     x = get :mouse_x
     y = get :mouse_y
-    for i in 0..19
-        if x != 0 && x != 239 && y != 0 && y != 479 && buttons[i].inRect(x, y)
+    for i in 0..buttons.length() - 1
+        if x != 0 && x != 599 && y != 0 && y != 399 && buttons[i].inRect(x, y)
             buttons[i].color = 'yellow'
         else
             buttons[i].reset_color
