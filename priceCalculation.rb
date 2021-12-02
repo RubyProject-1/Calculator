@@ -6,17 +6,9 @@ end
 
 def calculate (state ="California", price = 0, sale = 0)
     begin
-        # if price || sale < 0
-            raise NegativeError.new() if (price || sale) < 0
-        # end
+            raise NegativeError.new() if (price < 0 || sale < 0) 
     rescue 
-        puts "Please make sure that Price and Sale are not negative."
-
-    #     if sale < 0
-    #         raise SaleError.new()
-    #     end
-    # rescue
-    #     puts "Please enter a sale that is greater than 0"
+        puts "Please make sure that Price or Sale is not negative."
 
     else #else for begin statement 
         subtotal = priceCalculate(price,sale).round(2) #calculates subtotal
@@ -64,5 +56,7 @@ def taxCalulate(price,state_key)
     return ("#{price * $stateTax[state_key]}").to_f
 end
 
-calculate()
+calculate("California", 10, 10)
+
+
 
