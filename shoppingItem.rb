@@ -17,7 +17,7 @@ class ShoppingItem
     @tPrice = price * quantity
   end
 
-  def tPrice
+  def tPrice  # returns total price
     updatePrice()
     @tPrice
   end

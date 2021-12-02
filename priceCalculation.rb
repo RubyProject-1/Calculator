@@ -1,16 +1,16 @@
 class NegativeError < StandardError
     def message
-        "Negative Price or Negative Sale Error" #message that displays to console if not rescued
+        "Negative Price or Negative Sale Error" # error message that displays to console if not rescued
     end
 end
 
-class StateAbbreviationError < StandardError
+class StateAbbreviationError < StandardError   
     def message
         "Not a valid state abbreviation"
     end
 end
 
-def calculate (state = "CA", price = 0, sale = 0)
+def calculate (state = "CA", price = 0, sale = 0) #calculates and returns subtotal, total, and saved values
 
     raise StateAbbreviationError.new if ! $stateAbbreviations.key?(state)
 
@@ -34,20 +34,20 @@ def calculate (state = "CA", price = 0, sale = 0)
 
 end #end function
 
-def priceCalculate(price,sale)
+def priceCalculate(price,sale)  # calculates price
     discountAmt = discountCalculate(price,sale)
     price = price - discountAmt
     return price
 end
 
-def discountCalculate(price, sale)
+def discountCalculate(price, sale)  # calculates discount
     sale = sale / 100.to_f 
     discount = price * sale
     return discount
 end
 
 
-def totalCalculate(subTotal, salestax)
+def totalCalculate(subTotal, salestax)  # calculates total
     total = subTotal + salestax
     return total
 end
@@ -68,6 +68,6 @@ $stateTax = {"Alabama" => 0.04,"Alaska" => 0,"Arizona" => 0.056,"Arkansas" => 0.
              "Texas" => 6.250/100,"Utah" => 4.850/100,"Vermont" => 6.000/100,"Virginia" => 4.300/100,"Washington" => 6.500/100,"West Virginia" => 6.000/100,"Wisconsin" => 5.000/100,"Wyoming" => 4.000/100
             }
 
-def taxCalulate(price,state_key)
+def taxCalulate(price,state_key)  # returns tax based on state
     return ("#{price * $stateTax[state_key]}").to_f
 end
