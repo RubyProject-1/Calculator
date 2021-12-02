@@ -4,12 +4,6 @@ class NegativeError < StandardError
     end
 end
 
-class SaleError < StandardError
-    def message
-        "Sale Error"
-    end
-end
-
 def calculate (state, price, sale = 0)
     begin
         if price || sale < 0
