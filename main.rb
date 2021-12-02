@@ -163,6 +163,9 @@ on :key_up do |event|
     end
 end
 
+click = Sound.new('mixkit-mouse-click-close-1113.wav')
+cash = Sound.new('mixkit-coins-handling-1939.wav')
+
 # On mouse click
 on :mouse_down do |event|
     # Left mouse button pressed down
@@ -173,6 +176,12 @@ on :mouse_down do |event|
             # Perform a button's action if it is clicked
             if buttons[i].inRect(x, y)
                 input(buttons[i].label_name)
+                if i == 38
+                    cash.play()
+                else
+                    puts i
+                    click.play()
+                end
             end
         end
     end
