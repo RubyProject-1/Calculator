@@ -1,28 +1,41 @@
-class PriceError < StandardError
+class NegativeError < StandardError
     def message
-        "Enter a price that is zero or greater"
+        "Negative Price or Negative Sale Error" #message that displays to console if not rescued
     end
 end
 
 class SaleError < StandardError
     def message
-        "Enter a sale that is zero or greater"
+        "Sale Error"
     end
 end
 
 def calculate (state, price, sale = 0)
-    raise PriceError if price < 0 
-    raise SaleError if sale < 0 
-    subtotal = priceCalculate(price,sale).round(2) #calculates subtotal
-    salesTax = taxCalulate(subtotal,state) #calculates sales tax amount
-    print "subtotal: $", '%.2f' % subtotal #'%.2f' helps us round to two decimals & displays 0's
-    total = totalCalculate(subtotal,salesTax).round(2) #calulates total price of item
-    puts
-    print "total: $", '%.2f' % total
-    if(sale > 0)
+    begin
+        if price || sale < 0
+            raise NegativeError.new()
+        end
+    rescue 
+        puts "Please make sure that Price and Sale are not negative."
+
+    #     if sale < 0
+    #         raise SaleError.new()
+    #     end
+    # rescue
+    #     puts "Please enter a sale that is greater than 0"
+
+    else #else for begin statement 
+        subtotal = priceCalculate(price,sale).round(2) #calculates subtotal
+        salesTax = taxCalulate(subtotal,state) #calculates sales tax amount
+        print "subtotal: $", '%.2f' % subtotal #'%.2f' helps us round to two decimals & displays 0's
+        total = totalCalculate(subtotal,salesTax).round(2) #calulates total price of item
         puts
-        print "saved: $" '%.2f' % discountCalculate(price, sale)
-    end
+        print "total: $", '%.2f' % total
+        if(sale > 0)
+            puts
+            print "saved: $" '%.2f' % discountCalculate(price, sale)
+        end #end of if statement
+    end#end of begin
 end #end function
 
 def priceCalculate(price,sale)
@@ -57,5 +70,5 @@ def taxCalulate(price,state_key)
     return ("#{price * $stateTax[state_key]}").to_f
 end
 
-calculate("California", -1.00,-1)
+calculate("California", 100 ,)
 
