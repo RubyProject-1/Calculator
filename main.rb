@@ -183,7 +183,7 @@ on :key_up do |event|
         click.play()
     elsif input.eql?('return')
         input('ENTER')
-        click.play()
+        cash.play()
     else
         input(input.upcase)
         click.play()
