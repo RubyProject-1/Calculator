@@ -20,7 +20,7 @@ Display.new(0, 0, @displayX , @displayY , "#505050", "Enter State Abbreviation")
 Display.new(0, 40, @displayX , @displayY , "#505050", "") # Amount Saved 
 Display.new(0, 80, @displayX , @displayY + 40 , "#505050", "") # Items
 Display.new(0, 160, @displayX , @displayY , "#505050", "") # Subtotal
-Display.new(0, 200, @displayX , @displayY , "#505050", "") # Subtotal
+Display.new(0, 200, @displayX , @displayY , "#505050", "") # Total
 
 
 @displaceVal = 160  # for button displacement
@@ -220,22 +220,23 @@ def input(input)
                     @priceLabel = false
                     begin
                       subtotal, total, saved = calculate(@state, (@price.to_f) * @quant.to_i, @sale.to_i)  
-                      final = "Subtotal: $%.2f | You saved, $%.2f! | Total: $%.2f" % [subtotal, saved, total]
+                      #final = "Subtotal: $%.2f | You saved, $%.2f! | Total: $%.2f" % [subtotal, saved, total]
                       subtotal = @grandSubtotal + subtotal
                       total = @grandTotal + total
                       saved = @grandSaved + saved
+                      puts total
+                      final = "Item Added"
                     rescue
                       final = e.message
                     end
-                    Display.new(0, 0, @displayX , @displayY , "#505050", "Item Added!")
+                    Display.new(0, 0, @displayX , @displayY , "#505050", final)
                     Display.new(0, 40, @displayX , @displayY , "#505050", "Amount Saved: $%.2f" % [saved])
                     Display.new(0, 160, @displayX , @displayY , "#505050", "Subtotal: $%.2f" % [subtotal])
                     Display.new(0, 200, @displayX , @displayY , "#505050", "Total: $%.2f" % [total]) 
-
-                    @grandSubtotal = subtotal.to_f
-                    @grantTotal = total.to_f
-                    @grandSaved = saved.to_f
-      
+                    
+                    @grandTotal = total
+                    @grandSubtotal = subtotal
+                    @grandSaved = saved 
 
                 temp = ShoppingItem.new(@name, @price.to_f, @quant.to_i)
                 @name = ''
