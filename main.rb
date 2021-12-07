@@ -2,7 +2,6 @@
 require 'ruby2d'
 require_relative 'button'
 require_relative 'display'
-require_relative 'calculator'
 require_relative 'priceCalculation'
 require_relative 'shoppingItem'
 
@@ -25,8 +24,6 @@ Display.new(0, 200, @displayX , @displayY , "#505050", "") # Total
 
 @displaceVal = 160  # for button displacement
 @absTotal = 0 # for sumTotal
-
-@calculator = Calculator.new()
 
 @button_names = ['1','2', '3', '4', '5', '6', '7', '8', '9', '0', 
                  'Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 
