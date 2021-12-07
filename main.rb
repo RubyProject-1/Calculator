@@ -4,9 +4,10 @@ require_relative 'button'
 require_relative 'display'
 require_relative 'calculator'
 require_relative 'priceCalculation'
+require_relative 'shoppingItem'
 
 # Set the window size, background color, and title
-set width: 600, height: 520
+set width: 600, height: 560
 set background: '#376278'
 set title: "Calculator"
 
@@ -14,16 +15,16 @@ set title: "Calculator"
 @displayY = 40
 
 # Create the display
-def resetDisplay()
-  Display.new(0, 0, @displayX , @displayY , "#505050", "Enter State Abbreviation") # main typing display
-  Display.new(0, 40, @displayX , @displayY , "#505050", "") # display for state tax
-  Display.new(0, 80, @displayX , @displayY , "#505050", "") # Sale Percentage
-  Display.new(0, 120, @displayX , @displayY , "#505050", "") # Subtotal
-  Display.new(0, 160, @displayX , @displayY , "#505050", "") # Total
-end
 
-resetDisplay()
-@displaceVal = 120  # for button displacement
+Display.new(0, 0, @displayX , @displayY , "#505050", "Enter State Abbreviation") # main typing display
+Display.new(0, 40, @displayX , @displayY , "#505050", "") # Amount Saved 
+Display.new(0, 80, @displayX , @displayY + 40 , "#505050", "") # Items
+Display.new(0, 160, @displayX , @displayY , "#505050", "") # Subtotal
+Display.new(0, 200, @displayX , @displayY , "#505050", "") # Total
+
+
+@displaceVal = 160  # for button displacement
+@absTotal = 0 # for sumTotal
 
 @calculator = Calculator.new()
 
@@ -44,6 +45,8 @@ for i in 0..3
         case button_num
         when 0..9, 29, 37, 38
             color = '#FF9500'
+        when 10, 13
+            color = 'silver'
         else
             color = 'white'
         end
@@ -58,13 +61,24 @@ for i in 0..3
 end
 
 @stateLabel = true
+@itemLabel = true
+@quantityLabel = true
 @priceLabel = true
 @saleLabel = true
+@first = true
 @state = ''
+@name = ''
+@quant = ''
 @price = ''
 @sale = ''
+@itemDisplay = ''
 
-# For inputs
+@grandTotal = 0
+@grandSubtotal = 0
+@grandSaved = 0
+
+@items = []
+
 def input(input)
   if @button_names.include? input # State Abbr. Input
         input_num = @button_names.find_index(input)
@@ -87,51 +101,20 @@ def input(input)
 
             when 38   # enter
                 if !@state.eql?('')
-                    Display.new(0, 40, @displayX , @displayY , "#505050",
+                    if @first
+                      Display.new(0, 40, @displayX , @displayY , "#505050",
                                 "State: " + @state) 
-                    Display.new(0, 0, @displayX, @displayY, "#505050", "Enter Price")
+                    end
+                    Display.new(0, 0, @displayX, @displayY, "#505050", "Enter Sale %")
                     @stateLabel = false
                 end
             end
-        elsif @priceLabel   # Price Input
+         elsif @saleLabel    # Sale % Input
             case input_num
             when 0..9   # Numbers
-                if @price.eql?('') && input_num == 9
-                elsif !@price.include?('.') || @price[-1] == '.' || @price[-2] == '.'
-                    @price += input
-                end
-                Display.new(0, 0,@displayX, @displayY, "#505050", '$' + @price)
-            when 29     # Backspace             
-                if @price.length > 0
-                    @price = @price[0...-1]
-                    if @price.eql?('0')
-                        @price = ''
-                    end
-
-                    if @price.length == 0   # if set back to nothing
-                      Display.new(0, 0, @displayX, @displayY,  "#505050",  "Enter Price")
-                    else
-                      Display.new(0, 0, @displayX, @displayY,  "#505050",  '$' + @price)
-                    end
-                end
-            when 37   # Period
-                if @price.eql?('')
-                    @price = '0.'
-                    Display.new(0, 0, @displayX, @displayY,  "#505050", '$' + @price)
-                elsif !@price.include?('.')
-                    @price += '.'
-                    Display.new(0, 0, @displayX, @displayY,  "#505050",'$' +  @price)
-                end
-            when 38   # Enter
-                if !@price.eql?('')
-                    Display.new(0, 0, @displayX, @displayY,  "#505050", "Enter Sale %")
-                    @priceLabel = false
-                end
-            end
-        elsif @saleLabel    # Sale % Input
-            case input_num
-            when 0..9   # Numbers
-                if @sale.eql?('') && input_num == 9
+                if @sale.eql?('0') && input_num == 9
+                elsif @sale.eql?('0') && input_num != 9
+                    @sale = input
                 elsif @sale.length < 2
                     @sale += input
                 elsif @sale.eql?('10') && input_num == 9
@@ -154,32 +137,176 @@ def input(input)
             when 38 # Enter
                 if !@sale.eql?('')
                     @saleLabel = false
-                    begin
-                        subtotal, total, saved = calculate(@state, @price.to_f, @sale.to_i) 
-                        Display.new(0, 80, @displayX , @displayY, "#505050", "Sale Percentage: " + @sale + " %")
-                        final = "Subtotal: $%.2f | You saved, $%.2f! | Total: $%.2f" % [subtotal, saved, total]
-                        spStr = "You saved, $%.2f!" % [saved]
-                        stStr = "Subtotal: $%.2f" % [subtotal]
-                        tStr = "Total: $%.2f" % [total]
-                    rescue => e
-                        spStr = e.message
-                    end
-                    Display.new(0, 0, @displayX , @displayY , "#505050", spStr)
-                    Display.new(0, 120, @displayX , @displayY , "#505050", stStr) # Subtotal
-                    Display.new(0, 160, @displayX , @displayY , "#505050", tStr) # Total
+                    Display.new(0, 0, @displayX, @displayY,  "#505050", "Enter Item Name")
+                end
+            end
+        elsif @itemLabel    # Entering item name
+            case input_num
+            when 0..9   # Numbers
+                #@name += input
+                Display.new(0, 0,@displayX, @displayY, "#505050", "Item name cannot contain numbers.")
+            when 10..28, 30..37   # Letters
+                @name += input
+                Display.new(0, 0, @displayX, @displayY, "#505050", @name)
 
+            when 29     # Backspace             
+                if @name.length > 0
+                    @name = @name[0...-1]
+                end
+
+                  if @name.length == 0   # if set back to nothing
+                      Display.new(0, 0, @displayX, @displayY,  "#505050",  "Enter Item Name")
+                  else
+                      Display.new(0, 0, @displayX, @displayY,  "#505050", @name)
+                  end
+      
+            when 38   # Enter
+                if !@name.eql?('')
+                    Display.new(0, 0, @displayX, @displayY,  "#505050", "Enter Quantity of " + @name)
+                    @itemLabel = false
+                end
+            end
+
+        elsif @quantityLabel  # reads in quantity of item
+            case input_num
+            when 0..9   # Numbers
+                @quant += input
+                Display.new(0, 0,@displayX, @displayY, "#505050", @quant)
+            when 29     # Backspace             
+                if @quant.length > 0
+                    @quant = @quant[0...-1]
+                    if @quant.eql?('0')
+                        @quant = ''
+                    end
+
+                    if @quant.length == 0   # if set back to nothing
+                        Display.new(0, 0, @displayX, @displayY,  "#505050",  "Enter Quantity of " + @name)
+                    else
+                        Display.new(0, 0, @displayX, @displayY,  "#505050",  @quant)
+                    end
+                end
+             when 38   # Enter
+                if !@quant.eql?('')
+                    Display.new(0, 0, @displayX, @displayY,  "#505050", "Enter Price of 1x " + @name)
+                    @quantityLabel = false
+                end
+            end
+        elsif @priceLabel   # Price Input
+            case input_num
+            when 0..9   # Numbers
+                if @price.eql?('') && input_num == 9
+                elsif !@price.include?('.') || @price[-1] == '.' || @price[-2] == '.'
+                    @price += input
+                end
+                Display.new(0, 0,@displayX, @displayY, "#505050", '$' + @price)
+            when 29     # Backspace             
+                if @price.length > 0
+                    @price = @price[0...-1]
+                    if @price.eql?('0')
+                        @price = ''
+                    end
+
+                    if @price.length == 0   # if set back to nothing
+                        Display.new(0, 0, @displayX, @displayY,  "#505050",  "Enter Price of 1x " + @name)
+                    else
+                        Display.new(0, 0, @displayX, @displayY,  "#505050",  '$' + @price)
+                    end
+                end
+            when 37   # Period
+                if @price.eql?('')
+                    @price = '0.'
+                    Display.new(0, 0, @displayX, @displayY,  "#505050", '$' + @price)
+                elsif !@price.include?('.')
+                    @price += '.'
+                    Display.new(0, 0, @displayX, @displayY,  "#505050",'$' +  @price)
+                end
+            when 38   # Enter
+                if !@price.eql?('')
+                    @priceLabel = false
+                    begin
+                        subtotal, total, saved = calculate(@state, (@price.to_f) * @quant.to_i, @sale.to_i)
+                        subtotal = @grandSubtotal + subtotal
+                        total = @grandTotal + total
+                        if saved.nil?
+                            saved = @grandSaved
+                        else
+                            saved = @grandSaved + saved
+                        end
+                        puts total
+                        final = "Item Added"
+                        Display.new(0, 0, @displayX , @displayY , "#505050", final)
+                        Display.new(0, 40, @displayX , @displayY , "#505050", "Amount Saved: $%.2f" % [saved])
+                        Display.new(0, 160, @displayX , @displayY , "#505050", "Subtotal: $%.2f" % [subtotal])
+                        Display.new(0, 200, @displayX , @displayY , "#505050", "Total: $%.2f" % [total]) 
+                        
+                        @grandTotal = total
+                        @grandSubtotal = subtotal
+                        @grandSaved = saved 
+    
+                        temp = ShoppingItem.new(@name, @price.to_f, @quant.to_i)
+                        @name = ''
+                        @price = ''
+                        @quant = ''
+                        @itemDisplay = @itemDisplay + temp.printLabel() + ", "                
+                        Display.new(0, 80, @displayX , @displayY + 40 , "#505050", @itemDisplay) # Item
+                    rescue => e
+                        final = e.message + ', Enter correct state abbreviation'
+                        Display.new(0, 0, @displayX , @displayY , "#505050", final)
+                        @stateLabel = true
+                        @itemLabel = true
+                        @quantityLabel = true
+                        @priceLabel = true
+                        @saleLabel = true
+                        @first = true
+                        @state = ''
+                        @name = ''
+                        @quant = ''
+                        @price = ''
+                        @sale = ''
+                        @itemDisplay = ''
+                        @grandTotal = 0
+                        @grandSubtotal = 0
+                        @grandSaved = 0
+                        @items = []
+                    end
                 end
             end
         else
             case input_num
-            when 38
+            when 10 # Q to quit
+                close
+            when 13 # R to reset
                 @stateLabel = true
+                @itemLabel = true
+                @quantityLabel = true
                 @priceLabel = true
                 @saleLabel = true
+                @first = true
                 @state = ''
+                @name = ''
+                @quant = ''
                 @price = ''
                 @sale = ''
-                resetDisplay() 
+                @itemDisplay = ''
+                @grandTotal = 0
+                @grandSubtotal = 0
+                @grandSaved = 0
+                @items = []
+                Display.new(0, 0, @displayX , @displayY , "#505050", "Enter State Abbreviation") # main typing display
+                Display.new(0, 40, @displayX , @displayY , "#505050", "") # Amount Saved 
+                Display.new(0, 80, @displayX , @displayY + 40 , "#505050", "") # Items
+                Display.new(0, 160, @displayX , @displayY , "#505050", "") # Subtotal
+                Display.new(0, 200, @displayX , @displayY , "#505050", "") # Total
+            when 38 # Enter to add more items
+                @priceLabel = true
+                @saleLabel = true
+                @quantityLabel = true
+                @itemLabel = true
+                @price = ''
+                @sale = ''
+                @first = false
+                Display.new(0, 0, @displayX , @displayY , "#505050", "Enter Sale %")
+
             end
         end
     end
