@@ -9,7 +9,7 @@ require_relative 'shoppingItem'
 # Set the window size, background color, and title
 set width: 600, height: 560
 set background: '#376278'
-set title: "Calculator"
+set title: "Shopping Calculator"
 
 @displayX = 600
 @displayY = 40
