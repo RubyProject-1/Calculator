@@ -157,9 +157,11 @@ def input(input)
                   end
       
             when 38   # Enter
-                if !@name.eql?('')
+                if !@name.eql?('') && @name.length > 2
                     Display.new(0, 0, @displayX, @displayY,  "#505050", "Enter Quantity of " + @name)
                     @itemLabel = false
+                else
+                    Display.new(0, 0, @displayX, @displayY,  "#505050", "Item name is too short")
                 end
             end
 
