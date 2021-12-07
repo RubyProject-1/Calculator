@@ -139,8 +139,8 @@ def input(input)
         elsif @itemLabel    # Entering item name
             case input_num
             when 0..9   # Numbers
-                @name += input
-                Display.new(0, 0,@displayX, @displayY, "#505050", @name)
+                #@name += input
+                Display.new(0, 0,@displayX, @displayY, "#505050", "Item name cannot contain numbers.")
             when 10..28, 30..37   # Letters
                 @name += input
                 Display.new(0, 0, @displayX, @displayY, "#505050", @name)
