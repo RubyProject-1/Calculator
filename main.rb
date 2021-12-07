@@ -162,7 +162,7 @@ def input(input)
                         stStr = "Subtotal: $%.2f" % [subtotal]
                         tStr = "Total: $%.2f" % [total]
                     rescue => e
-                        final = e.message
+                        spStr = e.message
                     end
                     Display.new(0, 0, @displayX , @displayY , "#505050", spStr)
                     Display.new(0, 120, @displayX , @displayY , "#505050", stStr) # Subtotal

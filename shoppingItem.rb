@@ -21,6 +21,10 @@ class ShoppingItem
     updatePrice()
     @tPrice
   end
+
+  def printLabel
+    return @name.to_s + "(x" + @quantity.to_s + ") - $%.2f" % [@tPrice] 
+  end
     
 end
 
