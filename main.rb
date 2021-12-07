@@ -21,7 +21,6 @@ Display.new(0, 80, @displayX , @displayY + 40 , "#505050", "") # Items
 Display.new(0, 160, @displayX , @displayY , "#505050", "") # Subtotal
 Display.new(0, 200, @displayX , @displayY , "#505050", "") # Total
 
-
 @displaceVal = 160  # for button displacement
 @absTotal = 0 # for sumTotal
 
@@ -57,24 +56,28 @@ for i in 0..3
     end
 end
 
-@stateLabel = true
-@itemLabel = true
-@quantityLabel = true
-@priceLabel = true
-@saleLabel = true
-@first = true
-@state = ''
-@name = ''
-@quant = ''
-@price = ''
-@sale = ''
-@itemDisplay = ''
+def reset()
+    @stateLabel = true
+    @itemLabel = true
+    @quantityLabel = true
+    @priceLabel = true
+    @saleLabel = true
+    @first = true
+    @state = ''
+    @name = ''
+    @quant = ''
+    @price = ''
+    @sale = ''
+    @itemDisplay = ''
 
-@grandTotal = 0
-@grandSubtotal = 0
-@grandSaved = 0
+    @grandTotal = 0
+    @grandSubtotal = 0
+    @grandSaved = 0
 
-@items = []
+    @items = []
+end
+
+reset()
 
 def input(input)
   if @button_names.include? input # State Abbr. Input
@@ -126,9 +129,9 @@ def input(input)
                     end
 
                     if @sale.length == 0   # if set back to nothing
-                      Display.new(0, 0, @displayX, @displayY, "#505050",  "Enter Sale %")
+                        Display.new(0, 0, @displayX, @displayY, "#505050",  "Enter Sale %")
                     else
-                      Display.new(0, 0, @displayX, @displayY, "#505050",  @sale + " %")
+                        Display.new(0, 0, @displayX, @displayY, "#505050",  @sale + " %")
                     end
                 end
             when 38 # Enter
@@ -152,9 +155,9 @@ def input(input)
                 end
 
                   if @name.length == 0   # if set back to nothing
-                      Display.new(0, 0, @displayX, @displayY,  "#505050",  "Enter Item Name")
+                        Display.new(0, 0, @displayX, @displayY,  "#505050",  "Enter Item Name")
                   else
-                      Display.new(0, 0, @displayX, @displayY,  "#505050", @name)
+                        Display.new(0, 0, @displayX, @displayY,  "#505050", @name)
                   end
       
             when 38   # Enter
@@ -251,22 +254,7 @@ def input(input)
                     rescue => e
                         final = e.message + ', Enter correct state abbreviation'
                         Display.new(0, 0, @displayX , @displayY , "#505050", final)
-                        @stateLabel = true
-                        @itemLabel = true
-                        @quantityLabel = true
-                        @priceLabel = true
-                        @saleLabel = true
-                        @first = true
-                        @state = ''
-                        @name = ''
-                        @quant = ''
-                        @price = ''
-                        @sale = ''
-                        @itemDisplay = ''
-                        @grandTotal = 0
-                        @grandSubtotal = 0
-                        @grandSaved = 0
-                        @items = []
+                        reset()
                     end
                 end
             end
@@ -275,22 +263,7 @@ def input(input)
             when 10 # Q to quit
                 close
             when 13 # R to reset
-                @stateLabel = true
-                @itemLabel = true
-                @quantityLabel = true
-                @priceLabel = true
-                @saleLabel = true
-                @first = true
-                @state = ''
-                @name = ''
-                @quant = ''
-                @price = ''
-                @sale = ''
-                @itemDisplay = ''
-                @grandTotal = 0
-                @grandSubtotal = 0
-                @grandSaved = 0
-                @items = []
+                reset()
                 Display.new(0, 0, @displayX , @displayY , "#505050", "Enter State Abbreviation") # main typing display
                 Display.new(0, 40, @displayX , @displayY , "#505050", "") # Amount Saved 
                 Display.new(0, 80, @displayX , @displayY + 40 , "#505050", "") # Items
