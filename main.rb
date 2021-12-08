@@ -278,7 +278,6 @@ def input(input)
                 @sale = ''
                 @first = false
                 Display.new(0, 0, @displayX , @displayY , "#505050", "Enter Sale %")
-
             end
         end
     end
@@ -310,8 +309,6 @@ on :key_up do |event|
     end
 end
 
-
-
 # On mouse click
 on :mouse_down do |event|
     # Left mouse button pressed down
@@ -338,7 +335,7 @@ update do
     x = get :mouse_x
     y = get :mouse_y
     for i in 0..buttons.length() - 1
-        if x != 0 && x != 599 && y != 0 && y != 399 && buttons[i].inRect(x, y)
+        if x > 0 && x < (get :width) - 1 && y > 0 && y < (get :height) - 1 && buttons[i].inRect(x, y)
             buttons[i].color = 'yellow'
         else
             buttons[i].reset_color
