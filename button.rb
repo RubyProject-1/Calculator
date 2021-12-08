@@ -21,7 +21,7 @@ class Button
         )
         @label = Text.new(
             label,
-            x: x + width/2 - 6, y: y + height/2 - 15,
+            x: x + width/2 - (6*label.length), y: y + height/2 - 15,
             size: 20,
             color: 'black'
         )
@@ -53,7 +53,7 @@ class Button
         )
         @label = Text.new(
             @label_name,
-            x: @x + @width/2 - 6, y: @y + @height/2 - 15,
+            x: @x + @width/2 - (6*@label_name.length), y: @y + @height/2 - 15,
             size: 20,
             color: 'black'
         )

@@ -6,22 +6,28 @@ require_relative 'priceCalculation'
 require_relative 'shoppingItem'
 
 # Set the window size, background color, and title
-set width: 600, height: 560
-set background: '#376278'
+set width: 600, height: 660
+set background: '#376278'#'#4f4f4f'
 set title: "Shopping Calculator"
 
-@displayX = 600
-@displayY = 40
+#Distance between sections of the calc, To make a little border around the whole thing and separate sections
+@spacing = 10
+
+@displayX = (get :width) - @spacing*2
+@displayY = 50
+@displayColor = "#819a9c" #@displayColor
+
+
 
 # Create the display
 
-Display.new(0, 0, @displayX , @displayY , "#505050", "Enter State Abbreviation") # main typing display
-Display.new(0, 40, @displayX , @displayY , "#505050", "") # Amount Saved 
-Display.new(0, 80, @displayX , @displayY + 40 , "#505050", "") # Items
-Display.new(0, 160, @displayX , @displayY , "#505050", "") # Subtotal
-Display.new(0, 200, @displayX , @displayY , "#505050", "") # Total
+Display.new(@spacing, @spacing, @displayX , @displayY , @displayColor, "Enter State Abbreviation") # main typing display
+Display.new(@spacing, @spacing + @displayY*1, @displayX , @displayY , @displayColor, "") # Amount Saved 
+Display.new(@spacing, @spacing + @displayY*2, @displayX , @displayY*2 , @displayColor, "") # Items
+Display.new(@spacing, @spacing + @displayY*4, @displayX , @displayY , @displayColor, "") # Subtotal
+Display.new(@spacing, @spacing + @displayY*5, @displayX , @displayY , @displayColor, "") # Total
 
-@displaceVal = 160  # for button displacement
+@displaceVal = @displayY * 5  # for button displacement @displayY is heigh of buttons
 @absTotal = 0 # for sumTotal
 
 @button_names = ['1','2', '3', '4', '5', '6', '7', '8', '9', '0', 
@@ -31,6 +37,8 @@ Display.new(0, 200, @displayX , @displayY , "#505050", "") # Total
 
 # Create the buttons
 buttons = []
+@buttonWidth = ((get :width) - @spacing*2) / 10
+@buttonHeight = 80
 
 for i in 0..3
     for j in 0..9
@@ -40,17 +48,19 @@ for i in 0..3
         end
         case button_num
         when 0..9, 29, 37, 38
-            color = '#FF9500'
+            color = '#54c1c7' #FF9500
         when 10, 13
             color = 'silver'
         else
             color = 'white'
         end
-        if button_num == 38
-            buttons[button_num] = Button.new(j * 60, ((i + 1) * 80) + @displaceVal, 120, 80, color, 
+        if button_num == 38 
+            #x y width height color label
+            #Enter key, double the width
+            buttons[button_num] = Button.new(j * @buttonWidth + @spacing, ((i + 1) * @buttonHeight) + @displaceVal, @buttonWidth*2, @buttonHeight, color, 
                 @button_names[button_num])
         else
-            buttons[button_num] = Button.new(j * 60, ((i + 1) * 80)+ @displaceVal, 60, 80, color, 
+            buttons[button_num] = Button.new(j * @buttonWidth + @spacing, ((i + 1) * @buttonHeight) + @displaceVal, @buttonWidth, @buttonHeight, color, 
                 @button_names[button_num])
         end
     end
@@ -86,26 +96,26 @@ def input(input)
             case input_num
             when 10..28, 30..36   # Letters
                 @state += input
-                Display.new(0, 0, @displayX, @displayY, "#505050", @state)
+                Display.new(@spacing, @spacing, @displayX, @displayY, @displayColor, @state)
             when 29   # backspace
                 if @state.length > 0
                     @state = @state[0...-1]
-                    #Display.new(0, 0, 600, 80, "#505050", @state)
+                    #Display.new(@spacing, @spacing, 600, 80, @displayColor, @state)
                 end
 
                 if @state.length == 0   # if set back to nothing
-                      Display.new(0, 0, @displayX, @displayY, "#505050",  "Enter State Abbreviation")
+                      Display.new(@spacing, @spacing, @displayX, @displayY, @displayColor,  "Enter State Abbreviation")
                     else
-                      Display.new(0, 0, @displayX, @displayY, "#505050",  @state)
+                      Display.new(@spacing, @spacing, @displayX, @displayY, @displayColor,  @state)
                     end
 
             when 38   # enter
                 if !@state.eql?('')
                     if @first
-                      Display.new(0, 40, @displayX , @displayY , "#505050",
+                        Display.new(@spacing, @spacing + @displayY, @displayX, @displayY , @displayColor,
                                 "State: " + @state) 
                     end
-                    Display.new(0, 0, @displayX, @displayY, "#505050", "Enter Sale %")
+                    Display.new(@spacing, @spacing, @displayX, @displayY, @displayColor, "Enter Sale %")
                     @stateLabel = false
                 end
             end
@@ -120,7 +130,7 @@ def input(input)
                 elsif @sale.eql?('10') && input_num == 9
                     @sale += input
                 end
-                Display.new(0, 0, @displayX, @displayY,  "#505050", @sale + " %")
+                Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor, @sale + " %")
             when 29     # Backspace
                 if @sale.length > 0
                     @sale = @sale[0...-1]
@@ -129,25 +139,25 @@ def input(input)
                     end
 
                     if @sale.length == 0   # if set back to nothing
-                        Display.new(0, 0, @displayX, @displayY, "#505050",  "Enter Sale %")
+                        Display.new(@spacing, @spacing, @displayX, @displayY, @displayColor,  "Enter Sale %")
                     else
-                        Display.new(0, 0, @displayX, @displayY, "#505050",  @sale + " %")
+                        Display.new(@spacing, @spacing, @displayX, @displayY, @displayColor,  @sale + " %")
                     end
                 end
             when 38 # Enter
                 if !@sale.eql?('')
                     @saleLabel = false
-                    Display.new(0, 0, @displayX, @displayY,  "#505050", "Enter Item Name")
+                    Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor, "Enter Item Name")
                 end
             end
         elsif @itemLabel    # Entering item name
             case input_num
             when 0..9   # Numbers
                 #@name += input
-                Display.new(0, 0,@displayX, @displayY, "#505050", "Item name cannot contain numbers.")
+                Display.new(@spacing, @spacing, @displayX, @displayY, @displayColor, "Item name cannot contain numbers.")
             when 10..28, 30..37   # Letters
                 @name += input
-                Display.new(0, 0, @displayX, @displayY, "#505050", @name)
+                Display.new(@spacing, @spacing, @displayX, @displayY, @displayColor, @name)
 
             when 29     # Backspace             
                 if @name.length > 0
@@ -155,17 +165,17 @@ def input(input)
                 end
 
                   if @name.length == 0   # if set back to nothing
-                        Display.new(0, 0, @displayX, @displayY,  "#505050",  "Enter Item Name")
+                        Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor,  "Enter Item Name")
                   else
-                        Display.new(0, 0, @displayX, @displayY,  "#505050", @name)
+                        Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor, @name)
                   end
       
             when 38   # Enter
                 if !@name.eql?('') && @name.length > 2
-                    Display.new(0, 0, @displayX, @displayY,  "#505050", "Enter Quantity of " + @name)
+                    Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor, "Enter Quantity of " + @name)
                     @itemLabel = false
                 else
-                    Display.new(0, 0, @displayX, @displayY,  "#505050", "Item name is too short")
+                    Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor, "Item name is too short")
                 end
             end
 
@@ -173,7 +183,7 @@ def input(input)
             case input_num
             when 0..9   # Numbers
                 @quant += input
-                Display.new(0, 0,@displayX, @displayY, "#505050", @quant)
+                Display.new(@spacing, @spacing,@displayX, @displayY, @displayColor, @quant)
             when 29     # Backspace             
                 if @quant.length > 0
                     @quant = @quant[0...-1]
@@ -182,14 +192,14 @@ def input(input)
                     end
 
                     if @quant.length == 0   # if set back to nothing
-                        Display.new(0, 0, @displayX, @displayY,  "#505050",  "Enter Quantity of " + @name)
+                        Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor,  "Enter Quantity of " + @name)
                     else
-                        Display.new(0, 0, @displayX, @displayY,  "#505050",  @quant)
+                        Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor,  @quant)
                     end
                 end
              when 38   # Enter
                 if !@quant.eql?('')
-                    Display.new(0, 0, @displayX, @displayY,  "#505050", "Enter Price of 1x " + @name)
+                    Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor, "Enter Price of 1x " + @name)
                     @quantityLabel = false
                 end
             end
@@ -200,7 +210,7 @@ def input(input)
                 elsif !@price.include?('.') || @price[-1] == '.' || @price[-2] == '.'
                     @price += input
                 end
-                Display.new(0, 0,@displayX, @displayY, "#505050", '$' + @price)
+                Display.new(@spacing, @spacing,@displayX, @displayY, @displayColor, '$' + @price)
             when 29     # Backspace             
                 if @price.length > 0
                     @price = @price[0...-1]
@@ -209,18 +219,18 @@ def input(input)
                     end
 
                     if @price.length == 0   # if set back to nothing
-                        Display.new(0, 0, @displayX, @displayY,  "#505050",  "Enter Price of 1x " + @name)
+                        Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor,  "Enter Price of 1x " + @name)
                     else
-                        Display.new(0, 0, @displayX, @displayY,  "#505050",  '$' + @price)
+                        Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor,  '$' + @price)
                     end
                 end
             when 37   # Period
                 if @price.eql?('')
                     @price = '0.'
-                    Display.new(0, 0, @displayX, @displayY,  "#505050", '$' + @price)
+                    Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor, '$' + @price)
                 elsif !@price.include?('.')
                     @price += '.'
-                    Display.new(0, 0, @displayX, @displayY,  "#505050",'$' +  @price)
+                    Display.new(@spacing, @spacing, @displayX, @displayY,  @displayColor,'$' +  @price)
                 end
             when 38   # Enter
                 if !@price.eql?('')
@@ -236,10 +246,11 @@ def input(input)
                         end
                         puts total
                         final = "Item Added"
-                        Display.new(0, 0, @displayX , @displayY , "#505050", final)
-                        Display.new(0, 40, @displayX , @displayY , "#505050", "Amount Saved: $%.2f" % [saved])
-                        Display.new(0, 160, @displayX , @displayY , "#505050", "Subtotal: $%.2f" % [subtotal])
-                        Display.new(0, 200, @displayX , @displayY , "#505050", "Total: $%.2f" % [total]) 
+                        Display.new(@spacing, @spacing, @displayX , @displayY , @displayColor, final)
+                        Display.new(@spacing, @spacing + @displayY*1, @displayX , @displayY , @displayColor, "Amount Saved: $%.2f" % [saved]) # Amount Saved 
+                        Display.new(@spacing, @spacing + @displayY*2, @displayX , @displayY*2, @displayColor, "") # Items
+                        Display.new(@spacing, @spacing + @displayY*4, @displayX , @displayY , @displayColor, "Subtotal: $%.2f" % [subtotal]) # Subtotal
+                        Display.new(@spacing, @spacing + @displayY*5, @displayX , @displayY , @displayColor, "Total: $%.2f" % [total]) # Total
                         
                         @grandTotal = total
                         @grandSubtotal = subtotal
@@ -250,10 +261,10 @@ def input(input)
                         @price = ''
                         @quant = ''
                         @itemDisplay = @itemDisplay + temp.printLabel() + ", "                
-                        Display.new(0, 80, @displayX , @displayY + 40 , "#505050", @itemDisplay) # Item
+                        Display.new(@spacing, @spacing + @displayY*2, @displayX , @displayY*2, @displayColor, @itemDisplay) # Item
                     rescue => e
                         final = e.message + ', Enter correct state abbreviation'
-                        Display.new(0, 0, @displayX , @displayY , "#505050", final)
+                        Display.new(@spacing, @spacing, @displayX , @displayY , @displayColor, final)
                         reset()
                     end
                 end
@@ -264,11 +275,11 @@ def input(input)
                 close
             when 13 # R to reset
                 reset()
-                Display.new(0, 0, @displayX , @displayY , "#505050", "Enter State Abbreviation") # main typing display
-                Display.new(0, 40, @displayX , @displayY , "#505050", "") # Amount Saved 
-                Display.new(0, 80, @displayX , @displayY + 40 , "#505050", "") # Items
-                Display.new(0, 160, @displayX , @displayY , "#505050", "") # Subtotal
-                Display.new(0, 200, @displayX , @displayY , "#505050", "") # Total
+                Display.new(@spacing, @spacing, @displayX , @displayY , @displayColor, "Enter State Abbreviation") # main typing display
+                Display.new(@spacing, @spacing + @displayY*1, @displayX , @displayY , @displayColor, "Amount Saved: $%.2f" % [saved]) # Amount Saved 
+                Display.new(@spacing, @spacing + @displayY*2, @displayX , @displayY*2 , @displayColor, "") # Items
+                Display.new(@spacing, @spacing + @displayY*4, @displayX , @displayY , @displayColor, "Subtotal: $%.2f" % [subtotal]) # Subtotal
+                Display.new(@spacing, @spacing + @displayY*5, @displayX , @displayY , @displayColor, "Total: $%.2f" % [total]) # Total
             when 38 # Enter to add more items
                 @priceLabel = true
                 @saleLabel = true
@@ -277,14 +288,16 @@ def input(input)
                 @price = ''
                 @sale = ''
                 @first = false
-                Display.new(0, 0, @displayX , @displayY , "#505050", "Enter Sale %")
+                Display.new(@spacing, @spacing, @displayX , @displayY , @displayColor, "Enter Sale %")
             end
         end
     end
 end
 
 click = Sound.new('mixkit-mouse-click-close-1113.wav')
+click.volume = 30
 cash = Sound.new('mixkit-coins-handling-1939.wav')
+cash.volume = 30
 
 # On Key release
 on :key_up do |event|
